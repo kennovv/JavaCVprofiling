@@ -82,10 +82,32 @@ public class ThumbnailGenerator {
   }
 
   private static IplImage rotate(final IplImage src, final int angle) {
-    IplImage img = IplImage.create(src.height(), src.width(), src.depth(), src.nChannels());
-    opencv_core.cvTranspose(src, img);
-    opencv_core.cvFlip(img, img, angle);
-    return img;
+    final IplImage dst;
+    switch (angle) {
+      case 90:
+        // Rotate 90° clockwise: transpose + flip vertically
+        dst = IplImage.create(src.height(), src.width(), src.depth(), src.nChannels());
+        opencv_core.cvTranspose(src, dst);
+        opencv_core.cvFlip(dst, dst, 0); // 0 = flip around x-axis (vertical flip)
+        break;
+      case 180:
+        // Rotate 180°: flip vertically and horizontally
+        dst = IplImage.create(src.width(), src.height(), src.depth(), src.nChannels());
+        opencv_core.cvFlip(src, dst, -1); // -1 = flip around both axes
+        break;
+      case 270:
+        // Rotate 270° clockwise (or 90° CCW): transpose + flip horizontally
+        dst = IplImage.create(src.height(), src.width(), src.depth(), src.nChannels());
+        opencv_core.cvTranspose(src, dst);
+        opencv_core.cvFlip(dst, dst, 1); // 1 = flip around y-axis (horizontal flip)
+        break;
+      default:
+        // No rotation or unsupported angle: return copy
+        dst = IplImage.create(src.width(), src.height(), src.depth(), src.nChannels());
+        opencv_core.cvCopy(src, dst, null);
+        break;
+    }
+    return dst;
   }
 
   private static void writeThumbnail(final FileInfoDomain fileInfo, final BufferedImage image)
