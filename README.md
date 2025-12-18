@@ -2,7 +2,7 @@
 
 ## Overview
 
-This application is developed to profile the JavaCV library for native memory leaks by repeatedly processing video files and generating thumbnails. It supports parallel execution with configurable thread counts and invocation numbers to simulate realistic workloads and stress test native memory management.
+This application is developed to profile the [JavaCV library](https://github.com/bytedeco/javacv) for native memory leaks by repeatedly processing video files and generating thumbnails. It supports parallel execution with configurable thread counts and invocation numbers to simulate realistic workloads and stress test native memory management.
 
 ## Features
 
@@ -86,4 +86,4 @@ jfrconv \
   native-leaks.html
 ```
 
-Produced `native-leaks.html` flame graph must contain unfreed allocations only according to `async-profiler` [documentation](https://github.com/async-profiler/async-profiler/blob/master/docs/ProfilingModes.md#native-memory-leaks), which are the likely to be a source of a memory leak.
+Produced `native-leaks.html` flame graph must contain unfreed allocations only according to [async-profiler documentation](https://github.com/async-profiler/async-profiler/blob/master/docs/ProfilingModes.md#native-memory-leaks), which are the likely to be a source of a memory leak.
