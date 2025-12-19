@@ -9,9 +9,10 @@ This application is developed to profile the [JavaCV library](https://github.com
 - **Parallel Video Processing**: Uses a thread pool to process multiple video files concurrently
 - **Thumbnail Generation**: Extracts frames from video files and creates thumbnail images
 - **Auto-Cleanup**: Automatically removes generated thumbnails after processing
-- **Native Memory Tracking (NMT)**: Captures JVM Native Memory Tracking data on shutdown
-- **Progress Monitoring**: Real-time progress display of completed tasks
-
+- **Comprehensive Native Memory Tracking (NMT)**: 
+  - **Baseline dump**: Captured before any processing starts
+  - **Periodic dumps**: Configurable interval during execution
+  - **Final dump**: Captured when all tasks complete
 
 ## Prerequisites
 
@@ -40,7 +41,7 @@ mvn clean package -Djavacpp.platform=linux-x86_64
 
 **Available platforms:**
 
-See official [JavaCPP documentation](https://github.com/bytedeco/javacpp-presets/wiki/Reducing-the-Number-of-Dependencies).
+See official [JavaCPP documentation](https://github.com/bytedeco/javacpp-presets/wiki/Reducing-the-Number-of-Dependencies) for more platforms.
 
 Without specifying a platform, the build will include binaries for all supported platforms, resulting in a much larger JAR file.
 
@@ -49,7 +50,7 @@ Without specifying a platform, the build will include binaries for all supported
 ### Basic Command
 
 ```bash
-java -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar <numThreads> <numInvocations> <videoFilePath>
+java -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar <numThreads> <numInvocations> <videoFilePath> <dumpIntervalSeconds>
 ```
 
 ### Parameters
@@ -57,22 +58,30 @@ java -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar <numThreads> <numInvoc
 - **numThreads**: Number of concurrent threads to use for processing (positive integer)
 - **numInvocations**: Total number of times to process the video file (positive integer)
 - **videoFilePath**: Path to the video file to process
+- **dumpIntervalSeconds**: NMT dump interval in seconds (0 to disable periodic dumps, positive integer for interval)
 
-## Output
+## NMT Dump Output Files
 
-- **Console Output**: Shows PID and progress of completed tasks
-- **NMT Logs**: Creates `nmt-final.log` and `nmt-final.err` on shutdown with native memory statistics
-- **Thumbnails**: Temporarily created in the same directory as the source video (with timestamp-UUID naming for uniqueness)
+The application generates timestamped NMT dump files with the following naming pattern:
 
-## Profiling for Memory Leaks
+```
+nmt-baseline-YYYYMMDD-HHMMSS-SSS.log      # Initial baseline (before processing)
+nmt-baseline-YYYYMMDD-HHMMSS-SSS.err      # Baseline error output
+nmt-periodic-YYYYMMDD-HHMMSS-SSS.log      # Periodic dumps during execution
+nmt-periodic-YYYYMMDD-HHMMSS-SSS.err      # Periodic error output
+nmt-final-YYYYMMDD-HHMMSS-SSS.log         # Final dump (after all processing)
+nmt-final-YYYYMMDD-HHMMSS-SSS.err         # Final error output
+```
+
+## Profiling for Memory Leaks with Async-Profiler
 
 To profile for native memory leaks, run the JVM with Native Memory Tracking enabled with profiler agent attached. For instance using [async-profiler](https://github.com/async-profiler/async-profiler) in `nativemem` mode:
 
 ```bash
 java \
-  -XX:+PreserveFramePointer -XX:NativeMemoryTracking=summary \
+  -XX:+PreserveFramePointer -XX:NativeMemoryTracking=detail \
   -agentpath:/path/to/libasyncProfiler.so=start,event=nativemem,file=leaks.jfr \
-  -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar 20 10000 /path/to/video/video.mp4
+  -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar 20 10000 /path/to/video/video.mp4 10
 ```
 
 After the application finishes, process the `.jfr` file to detect unfreed allocations:
