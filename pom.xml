@@ -13,7 +13,7 @@
 		<java.version>11</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<app.main.class>org.bytedeco.javacv.profiling.ProfilingApp</app.main.class>
-		<javacv-platform.version>1.5.12</javacv-platform.version>
+		<javacv-platform.version>1.5.13</javacv-platform.version>
 	</properties>
 
 	<dependencies>

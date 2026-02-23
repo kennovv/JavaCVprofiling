@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import org.bytedeco.ffmpeg.global.avutil;
+import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerScope;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
@@ -40,6 +41,11 @@ public class ThumbnailGenerator {
       System.err.println("\nFatal error in JavaCV native call");
       throw err;
     }
+    // Uncomment to call Pointer.trimMemory() explicitly.
+    // It was suggested as potential fix in https://github.com/bytedeco/javacv/issues/2371 and added into JavaCV 1.5.13 code too.
+    // finally {
+    //   Pointer.trimMemory();
+    // }
   }
 
   private static void createThumbnail(final FileInfoDomain fileInfo,

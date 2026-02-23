@@ -75,11 +75,21 @@ nmt-final-YYYYMMDD-HHMMSS-SSS.err         # Final error output
 
 ## Profiling for Memory Leaks with Async-Profiler
 
-To profile for native memory leaks, run the JVM with Native Memory Tracking enabled with profiler agent attached. For instance using [async-profiler](https://github.com/async-profiler/async-profiler) in `nativemem` mode:
+To profile for native memory leaks, run the JVM with Native Memory Tracking enabled with profiler agent attached.
+For instance using [async-profiler](https://github.com/async-profiler/async-profiler) in `nativemem` mode:
 
 ```bash
 java \
   -XX:+PreserveFramePointer -XX:NativeMemoryTracking=detail \
+  -agentpath:/path/to/libasyncProfiler.so=start,event=nativemem,file=leaks.jfr \
+  -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar 20 10000 /path/to/video/video.mp4 10
+```
+
+With Serial Garbage Collector (single-threaded), disabled JIT (Just-In-Time) compilation, diagnostic JVM options enabled, keeping frame pointers for better profiling accuracy and detailed Native Memory Tracking (NMT) to monitor native allocations:
+
+```bash
+java \
+  -Xmx512m -XX:+UseSerialGC -Xss1m -Djava.compiler=NONE -XX:+UnlockDiagnosticVMOptions -XX:+PreserveFramePointer -XX:NativeMemoryTracking=detail \
   -agentpath:/path/to/libasyncProfiler.so=start,event=nativemem,file=leaks.jfr \
   -jar target/javacv-profiling-0.0.1-SNAPSHOT-uber.jar 20 10000 /path/to/video/video.mp4 10
 ```
